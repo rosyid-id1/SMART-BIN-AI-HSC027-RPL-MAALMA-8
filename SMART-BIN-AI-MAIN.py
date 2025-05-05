@@ -3,24 +3,21 @@ import time
 from machine import Pin, time_pulse_us, PWM
 import urequests
 
-# === KONFIGURASI WIFI & UBIDOTS ===
 WIFI_SSID = 'RPL'
 WIFI_PASS = 'maalmajaya'
 UBIDOTS_TOKEN = 'BBUS-RP0OHVhu4wjCztt03F8vCDvxMIfzpz'
 UBIDOTS_DEVICE = 'rpl-8'
 UBIDOTS_VARIABLE = 'JARAK-SAMPAH'
 
-# === PIN SETUP ===
-TRIG1 = Pin(2, Pin.OUT)     # Sensor 1 → kontrol Servo
+TRIG1 = Pin(2, Pin.OUT)  
 ECHO1 = Pin(4, Pin.IN)
 
-TRIG2 = Pin(12, Pin.OUT)     # Sensor 2 → kontrol LED + Ubidots
+TRIG2 = Pin(12, Pin.OUT)  
 ECHO2 = Pin(13, Pin.IN)
 
-servo = PWM(Pin(15), freq=50)  # Servo
-led = Pin(5, Pin.OUT)          # LED indikator dari sensor #2
+servo = PWM(Pin(15), freq=50) 
+led = Pin(5, Pin.OUT)         
 
-# === KONEKSI WIFI ===
 def connect_wifi():
     print("Menyambungkan ke Wi-Fi...")
     wlan = network.WLAN(network.STA_IF)
@@ -36,7 +33,6 @@ def connect_wifi():
     else:
         print("\nGagal terhubung ke Wi-Fi setelah 20 percobaan.")
 
-# === BACA JARAK ===
 def get_distance(trig, echo):
     trig.off()
     time.sleep_us(2)
@@ -51,7 +47,6 @@ def get_distance(trig, echo):
     except OSError:
         return None
 
-# === KIRIM KE UBIDOTS ===
 def send_to_ubidots(distance):
     url = f"http://industrial.api.ubidots.com/api/v1.6/devices/{UBIDOTS_DEVICE}/"
     headers = {
@@ -69,12 +64,10 @@ def send_to_ubidots(distance):
     except Exception as e:
         print("Gagal mengirim:", e)
 
-# === ATUR SUDUT SERVO ===
 def set_servo_angle(angle):
     duty = int((angle / 180) * 75) + 40
     servo.duty(duty)
 
-# === PROGRAM UTAMA ===
 connect_wifi()
 
 while True:
@@ -98,9 +91,8 @@ while True:
         else:
             led.off()
 
-        # Kirim data ke Ubidots
         send_to_ubidots(jarak_led)
     else:
         print("[Sensor 2 - LED] Gagal membaca jarak.")
 
-    time.sleep(2)  # Beri waktu 2 detik sebelum pengukuran berikutnya
+    time.sleep(2) 
